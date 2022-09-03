@@ -1,5 +1,7 @@
 <!-- cargo-sync-readme start -->
 
+> THIS IS A FORK TO SOLVE SOME ISSUES WITH THE ORIGINAL DRIVER
+
 # arangors
 
 [![Build Status](https://github.com/fMeow/arangors/workflows/CI%20%28Linux%29/badge.svg?branch=master)](https://github.com/fMeow/arangors/actions)
@@ -46,33 +48,33 @@ By now, the available features of arangors are:
 
 - (Done) Milestone 0.1.x
 
-    Synchronous connection based on `reqwest` and full featured AQL query.
+  Synchronous connection based on `reqwest` and full featured AQL query.
 
 - (X) Milestone 0.2.x
 
-    Fill the unimplemented API in `Connection`, `Database`, `Collection` and
-    `Document`.
+  Fill the unimplemented API in `Connection`, `Database`, `Collection` and
+  `Document`.
 
-    ~~In this stage, all operations available for database, collection and
-    document should be implemented.~~
+  ~~In this stage, all operations available for database, collection and
+  document should be implemented.~~
 
-    Well, I am too lazy to fill all API, as the AQL syntax suffices in most
-    cases. Maybe fulfill this goal in 0.4.x .
+  Well, I am too lazy to fill all API, as the AQL syntax suffices in most
+  cases. Maybe fulfill this goal in 0.4.x .
 
 - (Done) Milestone 0.3.x
 
-    Implement both sync and async client. Also, offers a way to use custom
-    HTTP client ecosystem.
+  Implement both sync and async client. Also, offers a way to use custom
+  HTTP client ecosystem.
 
 - (WIP) Milestone 1.0.x
 
-    Provides the API related to:
+  Provides the API related to:
     - (X) Graph Management
     - (X) Index Management
     - ( ) User Management
 
-    In this stage, all operations available for database, collection and
-    document should be implemented.
+  In this stage, all operations available for database, collection and
+  document should be implemented.
 
 ## Glance
 
@@ -82,6 +84,7 @@ You can switch to different HTTP ecosystem with a feature gate, or implement
 the Client yourself (see examples).
 
 Currently out-of-box supported ecosystem are:
+
 - `reqwest_async`
 - `reqwest_blocking`
 - `surf_async`
@@ -112,6 +115,7 @@ with a feature gate. Arangors adopts async first policy.
 ### Connection
 
 There is three way to establish connections:
+
 - jwt
 - basic auth
 - no authentication
@@ -126,12 +130,9 @@ Example:
 use arangors::Connection;
 
 // (Recommended) Handy functions
-let conn = Connection::establish_jwt("http://localhost:8529", "username", "password")
-    .await
-    .unwrap();
-let conn = Connection::establish_basic_auth("http://localhost:8529", "username", "password")
-    .await
-    .unwrap();
+let conn = Connection::establish_jwt("http://localhost:8529", "username", "password").await
+.unwrap(); let conn = Connection::establish_basic_auth("http://localhost:8529", "username", "password").await
+.unwrap();
 ```
 
 - Without authentication, only use in evaluation setting
@@ -145,13 +146,13 @@ let conn = Connection::establish_without_auth("http://localhost:8529").await.unw
 ```rust
 use arangors::Connection;
 
-let db = conn.db("test_db").await.unwrap();
-let collection = db.collection("test_collection").await.unwrap();
+let db = conn.db("test_db").await.unwrap(); let collection = db.collection("test_collection").await.unwrap();
 ```
 
 ### AQL Query
 
-All [AQL](https://www.arangodb.com/docs/stable/aql/index.html) query related functions are associated with database, as AQL query
+All [AQL](https://www.arangodb.com/docs/stable/aql/index.html) query related functions are associated with database, as
+AQL query
 is performed at database level.
 
 There are several way to execute AQL query, and can be categorized into two
@@ -185,14 +186,11 @@ struct User {
 
 // Typed
 let resp: Vec<User> = db
-    .aql_str("FOR u IN test_collection RETURN u")
-    .await
-    .unwrap();
-// Not typed: Arbitrary JSON objects
-let resp: Vec<serde_json::Value> = db
-    .aql_str("FOR u IN test_collection RETURN u")
-    .await
-    .unwrap();
+.aql_str("FOR u IN test_collection RETURN u").await
+.unwrap();
+// Not typed: Arbitrary JSON objects let resp: Vec<serde_json::Value> = db
+.aql_str("FOR u IN test_collection RETURN u").await
+.unwrap();
 ```
 
 #### Batch query
@@ -205,29 +203,21 @@ next batch and update cursor with the cursor.
 ```rust
 
 
-let aql = AqlQuery::builder()
-    .query("FOR u IN @@collection LIMIT 3 RETURN u")
-    .bind_var("@collection", "test_collection")
-    .batch_size(1)
-    .count(true)
-    .build();
+let aql = AqlQuery::builder().query("FOR u IN @@collection LIMIT 3 RETURN u").bind_var("@collection", "test_collection").batch_size(1).count(true).build();
 
-// fetch the first cursor
-let mut cursor = db.aql_query_batch(aql).await.unwrap();
-// see metadata in cursor
+// fetch the first cursor let mut cursor = db.aql_query_batch(aql).await.unwrap(); // see metadata in cursor
 println!("count: {:?}", cursor.count);
 println!("cached: {}", cursor.cached);
-let mut results: Vec<serde_json::Value> = Vec::new();
-loop {
-    if cursor.more {
-        let id = cursor.id.unwrap().clone();
-        // save data
-        results.extend(cursor.result.into_iter());
-        // update cursor
-        cursor = db.aql_next_batch(id.as_str()).await.unwrap();
-    } else {
-        break;
-    }
+let mut results: Vec<serde_json::Value> = Vec::new(); loop {
+if cursor.more {
+let id = cursor.id.unwrap().clone();
+// save data
+results.extend(cursor.result.into_iter());
+// update cursor
+cursor = db.aql_next_batch(id.as_str()).await.unwrap();
+} else {
+break;
+}
 }
 println!("{:?}", results);
 ```
@@ -255,9 +245,8 @@ struct User {
 }
 
 let result: Vec<User> = db
-    .aql_str(r#"FOR i in test_collection FILTER i.username=="test2" return i"#)
-    .await
-    .unwrap();
+.aql_str(r#"FOR i in test_collection FILTER i.username=="test2" return i"#).await
+.unwrap();
 ```
 
 ##### `aql_bind_vars`
@@ -274,16 +263,12 @@ struct User {
 }
 
 
-let mut vars = HashMap::new();
-let user = User {
-    username: "test".to_string(),
-    password: "test_pwd".to_string(),
-};
-vars.insert("user", serde_json::value::to_value(&user).unwrap());
-let result: Vec<Document<User>> = db
-    .aql_bind_vars(r#"FOR i in test_collection FILTER i==@user return i"#, vars)
-    .await
-    .unwrap();
+let mut vars = HashMap::new(); let user = User {
+username: "test".to_string(),
+password: "test_pwd".to_string(),
+}; vars.insert("user", serde_json::value::to_value( & user).unwrap()); let result: Vec<Document<User> > = db
+.aql_bind_vars(r#"FOR i in test_collection FILTER i==@user return i"#, vars).await
+.unwrap();
 ```
 
 ##### `aql_query`
@@ -299,15 +284,9 @@ use arangors::{AqlQuery, Connection, Cursor, Database};
 use serde_json::value::Value;
 
 
-let aql = AqlQuery::builder()
-    .query("FOR u IN @@collection LIMIT 3 RETURN u")
-    .bind_var("@collection", "test_collection")
-    .batch_size(1)
-    .count(true)
-    .build();
+let aql = AqlQuery::builder().query("FOR u IN @@collection LIMIT 3 RETURN u").bind_var("@collection", "test_collection").batch_size(1).count(true).build();
 
-let resp: Vec<Value> = db.aql_query(aql).await.unwrap();
-println!("{:?}", resp);
+let resp: Vec<Value> = db.aql_query(aql).await.unwrap(); println!("{:?}", resp);
 ```
 
 ### Contributing
@@ -315,7 +294,8 @@ println!("{:?}", resp);
 Contributions and feed back are welcome following Github workflow.
 
 Setup instructions:
-1. Install a local ArangoDB, version 3.8 or above, port 8529.  Use `docker compose`.
+
+1. Install a local ArangoDB, version 3.8 or above, port 8529. Use `docker compose`.
 2. Run `tests/init_db.sh`
 
 ### License

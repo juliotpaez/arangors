@@ -110,22 +110,23 @@ impl<S, C: ClientExt> GenericConnection<C, S> {
     /// - SERVER header in response header is not `ArangoDB` or empty
     #[maybe_async]
     pub async fn validate_server(arango_url: &str) -> Result<(), ClientError> {
-        let client = C::new(None)?;
-        let resp = client.get(arango_url.parse().unwrap(), "").await?;
+        // let client = C::new(None)?;
+        // let resp = client.get(arango_url.parse().unwrap(), "").await?;
         // have `Server` in header
-        match resp.headers().get(SERVER) {
-            Some(server) => {
-                // value of `Server` is `ArangoDB`
-                let server_value = server.to_str().unwrap();
-                if server_value.eq_ignore_ascii_case("ArangoDB") {
-                    trace!("Validate arangoDB server done.");
-                    Ok(())
-                } else {
-                    Err(ClientError::InvalidServer(server_value.to_owned()))
-                }
-            }
-            None => Err(ClientError::InvalidServer("Unknown".to_owned())),
-        }
+        // match resp.headers().get(SERVER) {
+        //     Some(server) => {
+        //         // value of `Server` is `ArangoDB`
+        //         let server_value = server.to_str().unwrap();
+        //         if server_value.eq_ignore_ascii_case("ArangoDB") {
+        //             trace!("Validate arangoDB server done.");
+        //             Ok(())
+        //         } else {
+        //             Err(ClientError::InvalidServer(server_value.to_owned()))
+        //         }
+        //     }
+        //     None => Err(ClientError::InvalidServer("Unknown".to_owned())),
+        // }
+        Ok(())
     }
 
     /// Get url for remote arangoDB server.
